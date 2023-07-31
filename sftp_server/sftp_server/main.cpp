@@ -12,14 +12,23 @@ using namespace std;
 #define SSHD_PASSWORD "libssh"
 
 #ifndef KEYS_FOLDER
-#define KEYS_FOLDER "C:\\Users\\inrasun3\\.ssh\\"
+#define KEYS_FOLDER ".\\key\\"
 #endif
 
 const int port = 22;
 
-static int authenticate(ssh_session session); 
-static int auth_password(const char* user, const char* password); 
-void printerror(const char* pText, const char* pErrorInfo);
+static int authenticate(ssh_session session)
+{
+	return 0;
+}
+static int auth_password(const char* user, const char* password)
+{
+	return 0;
+}
+void printerror(const char* pText, const char* pErrorInfo)
+{
+	printf("Error[%s => %s]\n", pText, pErrorInfo);
+}
 
 int main(void)
 {
@@ -46,26 +55,31 @@ int main(void)
 		printerror("SSH session creation failed reason ", ssh_get_error(pSshBind));
 
 	iError = ssh_bind_options_set(pSshBind, SSH_BIND_OPTIONS_BINDPORT, &port);
-	iError = ssh_bind_options_set(pSshBind, SSH_BIND_OPTIONS_DSAKEY, KEYS_FOLDER "ssh_host_dsa_key");
-	iError = ssh_bind_options_set(pSshBind, SSH_BIND_OPTIONS_RSAKEY, KEYS_FOLDER "id_rsa");
+	iError = ssh_bind_options_set(pSshBind, SSH_BIND_OPTIONS_DSAKEY, "./key/ssh_host_dsa_key");
+	//iError = ssh_bind_options_set(pSshBind, SSH_BIND_OPTIONS_RSAKEY, "./key/ssh_host_rsa_key");
 
 	if (iError < 0)
+	{
 		printerror("Bind options set failed ", ssh_get_error(pSshBind));
+	}		
 
 	iError = ssh_bind_listen(pSshBind);
 
 	if (iError < 0)
+	{
 		printerror("Error listening to socket ", ssh_get_error(pSshBind));
+	}		
 
 	cout << "Started sample libssh sshd on port " << port << endl;
 	cout << "You can login as the user " << SSHD_USER << " with the password " << SSHD_PASSWORD << endl;
 
 	iError = ssh_bind_accept(pSshBind, pSshSession);
 	//ssh_bind_fd_toaccept(pSshBind);
-
+	printf("ssh_bind_accept[%d]\n", iError);
 	if (iError == SSH_ERROR)
 	{
 		printerror("Error accepting a connection ", ssh_get_error(pSshBind));
+		return 1;
 	}
 
 	if (ssh_handle_key_exchange(pSshSession)) {
